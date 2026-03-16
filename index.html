@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Accessible User Interface</title>
+    <style>
+      /* Reset & base */
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #1a1a1a;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      /* Skip-to-content link for keyboard users */
+      .skip-link {
+        position: absolute;
+        top: -100%;
+        left: 1rem;
+        padding: 0.5rem 1rem;
+        background: #005fcc;
+        color: #fff;
+        border-radius: 0 0 0.25rem 0.25rem;
+        text-decoration: none;
+        font-weight: 600;
+        z-index: 1000;
+        transition: top 0.2s;
+      }
+
+      .skip-link:focus {
+        top: 0;
+      }
+
+      /* Header */
+      header {
+        background-color: #003d80;
+        color: #fff;
+        padding: 1rem 2rem;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+        letter-spacing: 0.01em;
+      }
+
+      /* Nav */
+      nav {
+        background-color: #005fcc;
+      }
+
+      nav ul {
+        display: flex;
+        list-style: none;
+        padding: 0 2rem;
+        gap: 0;
+      }
+
+      nav a {
+        display: block;
+        padding: 0.75rem 1rem;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      nav a:hover,
+      nav a:focus {
+        background-color: #0047a3;
+        outline: 3px solid #ffcc00;
+        outline-offset: -3px;
+      }
+
+      nav a[aria-current="page"] {
+        background-color: #003d80;
+        text-decoration: underline;
+      }
+
+      /* Main layout */
+      .layout {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        gap: 1.5rem;
+        max-width: 1100px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+
+      @media (max-width: 700px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Sidebar */
+      aside {
+        background: #fff;
+        border-radius: 0.5rem;
+        padding: 1.25rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        align-self: start;
+      }
+
+      aside h2 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+        color: #003d80;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      aside ul {
+        list-style: none;
+      }
+
+      aside li + li {
+        margin-top: 0.5rem;
+      }
+
+      aside a {
+        color: #005fcc;
+        text-decoration: none;
+      }
+
+      aside a:hover,
+      aside a:focus {
+        text-decoration: underline;
+        outline: 2px solid #005fcc;
+        outline-offset: 2px;
+      }
+
+      /* Main content */
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .card {
+        background: #fff;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      }
+
+      .card h2 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        color: #003d80;
+      }
+
+      .card p {
+        color: #444;
+        max-width: 65ch;
+      }
+
+      /* Form */
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+      }
+
+      label {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      textarea,
+      select {
+        padding: 0.5rem 0.75rem;
+        border: 2px solid #bbb;
+        border-radius: 0.3rem;
+        font-size: 1rem;
+        font-family: inherit;
+        width: 100%;
+        max-width: 400px;
+        transition: border-color 0.15s;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: #005fcc;
+        outline: 2px solid #005fcc;
+        outline-offset: 2px;
+      }
+
+      .field-hint {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      .error-msg {
+        font-size: 0.85rem;
+        color: #c0001a;
+        font-weight: 600;
+      }
+
+      button[type="submit"] {
+        padding: 0.6rem 1.5rem;
+        background-color: #005fcc;
+        color: #fff;
+        border: none;
+        border-radius: 0.3rem;
+        font-size: 1rem;
+        font-family: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.15s;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #0047a3;
+      }
+
+      button[type="submit"]:focus {
+        outline: 3px solid #ffcc00;
+        outline-offset: 2px;
+      }
+
+      /* Status banner */
+      .status-banner {
+        display: none;
+        padding: 0.75rem 1rem;
+        border-radius: 0.3rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+      }
+
+      .status-banner.success {
+        display: block;
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 1.5rem;
+        font-size: 0.875rem;
+        color: #666;
+        border-top: 1px solid #ddd;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header role="banner">
+      <h1>Accessible UI</h1>
+    </header>
+
+    <nav aria-label="Primary navigation">
+      <ul role="list">
+        <li><a href="#" aria-current="page">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="layout">
+      <aside aria-label="Sidebar">
+        <h2>Quick links</h2>
+        <ul role="list">
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">Getting started</a></li>
+          <li><a href="#">Accessibility guide</a></li>
+          <li><a href="#">Support</a></li>
+        </ul>
+      </aside>
+
+      <main id="main-content" tabindex="-1">
+        <section class="card" aria-labelledby="welcome-heading">
+          <h2 id="welcome-heading">Welcome</h2>
+          <p>
+            This page demonstrates an accessible user interface using semantic HTML,
+            ARIA landmarks, keyboard-navigable controls, and sufficient colour contrast
+            to meet WCAG 2.1 AA guidelines.
+          </p>
+        </section>
+
+        <section class="card" aria-labelledby="contact-heading">
+          <h2 id="contact-heading">Contact us</h2>
+
+          <form
+            id="contact-form"
+            novalidate
+            aria-describedby="form-desc"
+            onsubmit="handleSubmit(event)"
+          >
+            <p id="form-desc" class="field-hint" style="margin-bottom:1rem;">
+              Fields marked with <abbr title="required">*</abbr> are required.
+            </p>
+
+            <div class="form-group">
+              <label for="name">
+                Full name <abbr title="required" aria-hidden="true">*</abbr>
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                autocomplete="name"
+                required
+                aria-required="true"
+                aria-describedby="name-error"
+              />
+              <span id="name-error" class="error-msg" role="alert" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="email">
+                Email address <abbr title="required" aria-hidden="true">*</abbr>
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                autocomplete="email"
+                required
+                aria-required="true"
+                aria-describedby="email-hint email-error"
+              />
+              <span id="email-hint" class="field-hint">We will never share your email.</span>
+              <span id="email-error" class="error-msg" role="alert" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="topic">Topic</label>
+              <select id="topic" name="topic">
+                <option value="">— Select a topic —</option>
+                <option value="general">General enquiry</option>
+                <option value="support">Technical support</option>
+                <option value="feedback">Feedback</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="message">
+                Message <abbr title="required" aria-hidden="true">*</abbr>
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows="5"
+                required
+                aria-required="true"
+                aria-describedby="message-error"
+                style="max-width:100%;"
+              ></textarea>
+              <span id="message-error" class="error-msg" role="alert" aria-live="polite"></span>
+            </div>
+
+            <button type="submit">Send message</button>
+
+            <div
+              id="form-success"
+              class="status-banner success"
+              role="status"
+              aria-live="polite"
+            >
+              Your message has been sent successfully. We will be in touch soon.
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <footer role="contentinfo">
+      <p>&copy; 2026 Accessible UI. Built with semantic HTML and WCAG 2.1 AA in mind.</p>
+    </footer>
+
+    <script>
+      function handleSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        let valid = true;
+
+        // Clear previous errors
+        ['name', 'email', 'message'].forEach(function (field) {
+          document.getElementById(field + '-error').textContent = '';
+        });
+
+        const name = form.name.value.trim();
+        const email = form.email.value.trim();
+        const message = form.message.value.trim();
+
+        if (!name) {
+          document.getElementById('name-error').textContent = 'Please enter your full name.';
+          valid = false;
+        }
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+          document.getElementById('email-error').textContent = 'Please enter your email address.';
+          valid = false;
+        } else if (!emailPattern.test(email)) {
+          document.getElementById('email-error').textContent = 'Please enter a valid email address.';
+          valid = false;
+        }
+
+        if (!message) {
+          document.getElementById('message-error').textContent = 'Please enter a message.';
+          valid = false;
+        }
+
+        if (valid) {
+          form.reset();
+          document.getElementById('form-success').classList.add('success');
+          document.getElementById('form-success').style.display = 'block';
+        } else {
+          // Move focus to first error
+          const firstError = form.querySelector('.error-msg:not(:empty)');
+          if (firstError) {
+            const fieldId = firstError.id.replace('-error', '');
+            const field = document.getElementById(fieldId);
+            if (field) field.focus();
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
